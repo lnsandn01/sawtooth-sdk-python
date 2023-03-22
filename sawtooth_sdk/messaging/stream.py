@@ -78,6 +78,16 @@ class _SendReceiveThread(Thread):
         self._condition = Condition()
         self.identity = _generate_id()[0:16]
 
+    def __eq__(self, other):
+        if not isinstance(other, _SendReceiveThread):
+            return NotImplemented
+
+        # _futures comparison not thread safe
+        return self._futures == other._futures \
+            and self._url == other.url \
+            and self._shutdown == other._shutdown \
+            and self._identity == other.identity
+
     @asyncio.coroutine
     def _receive_message(self):
         """
@@ -271,6 +281,15 @@ class Stream:
         err = error_queue.get()
         if err is not _NO_ERROR:
             raise err
+
+    def __eq__(self, other):
+        if not isinstance(other, Stream):
+            return NotImplemented
+
+        return self._url == other._url \
+            and self._futures == other._futures \
+            and self._event.is_set() == other._event.is_set() \
+            and self._send_recieve_thread == other._send_recieve_thread
 
     @property
     def url(self):

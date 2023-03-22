@@ -30,6 +30,15 @@ class Signer:
         self._private_key = private_key
         self._public_key = None
 
+    def __eq__(self, other):
+        if not isinstance(other, Signer):
+            # don't attempt to compare against unrelated types
+            return NotImplemented
+
+        return self._context == other._context \
+            and self._private_key == other._private_key \
+            and self._public_key == other._public_key
+
     def sign(self, message):
         """Signs the given message
 

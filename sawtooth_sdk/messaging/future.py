@@ -82,6 +82,12 @@ class FutureCollection:
         self._futures = {}
         self._lock = RLock()
 
+    def __eq__(self, other):
+        if not isinstance(other, FutureCollection):
+            return NotImplemented
+        # not thread safe
+        return self._futures == other._futures
+
     def put(self, future):
         with self._lock:
             self._futures[future.correlation_id] = future
