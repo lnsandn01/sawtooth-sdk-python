@@ -205,6 +205,13 @@ message Message {
         CONSENSUS_NOTIFY_ENGINE_DEACTIVATED = 908;
 
         CONSENSUS_NOTIFY_ACK = 999;
+
+        // Consensus messages for the Giskard protocol
+        CONSENSUS_GISKARD_PREPARE_BLOCK = 1000;
+        CONSENSUS_GISKARD_PREPARE_VOTE = 1001;
+        CONSENSUS_GISKARD_VIEW_CHANGE = 1002;
+        CONSENSUS_GISKARD_PREPARE_QC = 1003;
+        CONSENSUS_GISKARD_VIEW_CHANGE_QC = 1004;
     }
     // The type of message, used to determine how to 'route' the message
     // to the appropriate handler as well as how to deserialize the

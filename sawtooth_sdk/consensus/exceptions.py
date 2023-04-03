@@ -36,3 +36,7 @@ class UnknownPeer(Exception):
 
 class BlockNotReady(Exception):
     pass
+
+
+class SameAsPreviousBlockAndNotGenesis(Exception):
+    pass

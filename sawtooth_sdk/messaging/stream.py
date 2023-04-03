@@ -88,8 +88,7 @@ class _SendReceiveThread(Thread):
             and self._shutdown == other._shutdown \
             and self._identity == other.identity
 
-    @asyncio.coroutine
-    def _receive_message(self):
+    async def _receive_message(self):
         """
         internal coroutine that receives messages and puts
         them on the recv_queue
@@ -97,7 +96,7 @@ class _SendReceiveThread(Thread):
         while True:
             if not self._ready_event.is_set():
                 break
-            msg_bytes = yield from self._sock.recv()
+            msg_bytes = yield self._sock.recv()
             message = validator_pb2.Message()
             message.ParseFromString(msg_bytes)
             try:
@@ -112,41 +111,37 @@ class _SendReceiveThread(Thread):
                     break
                 self._recv_queue.put_nowait(message)
 
-    @asyncio.coroutine
-    def _send_message(self):
+    async def _send_message(self):
         """
         internal coroutine that sends messages from the send_queue
         """
         while True:
             if not self._ready_event.is_set():
                 break
-            msg = yield from self._send_queue.get()
-            yield from self._sock.send_multipart([msg.SerializeToString()])
+            msg = yield self._send_queue.get()
+            yield self._sock.send_multipart([msg.SerializeToString()])
 
-    @asyncio.coroutine
-    def _put_message(self, message):
+    async def _put_message(self, message):
         """
         Puts a message on the send_queue. Not to be accessed directly.
         :param message: protobuf generated validator_pb2.Message
         """
         self._send_queue.put_nowait(message)
 
-    @asyncio.coroutine
-    def _get_message(self):
+    async def _get_message(self):
         """
         Gets a message from the recv_queue. Not to be accessed directly.
         """
         with self._condition:
             self._condition.wait_for(lambda: self._recv_queue is not None)
-        msg = yield from self._recv_queue.get()
+        msg = yield self._recv_queue.get()
 
-        return msg
+        yield msg
 
-    @asyncio.coroutine
-    def _monitor_disconnects(self):
+    async def _monitor_disconnects(self):
         """Monitors the client socket for disconnects
         """
-        yield from self._monitor_sock.recv_multipart()
+        yield self._monitor_sock.recv_multipart()
         self._sock.disable_monitor()
         self._monitor_sock.disconnect(self._monitor_fd)
         self._monitor_sock.close(linger=0)
